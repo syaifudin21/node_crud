@@ -3,11 +3,15 @@ const express = require('express');
 var app = express();
 const bodyparser = require('body-parser');
 
+//parsing json
 app.use(bodyparser.json());
-app.use(bodyparser.urlencoded({     // to support URL-encoded bodies
-    extended: true
-  })); 
 
+//restApi agar support body parameter
+app.use(bodyparser.urlencoded({
+    extended: true
+})); 
+
+// setting connection
 var mysqlConnection = mysql.createConnection({
     host:'localhost',
     user:'root',
@@ -15,6 +19,7 @@ var mysqlConnection = mysql.createConnection({
     database : 'crudnode'
 })
 
+// cek koneksi
 mysqlConnection.connect((err)=>{
     if(!err)
     console.log('DB Connection Success');
@@ -22,8 +27,10 @@ mysqlConnection.connect((err)=>{
     console.log('DB connection failed \n Error : ' + JSON.stringify(err, undefined, 2));
 })
 
+//menjalankan port
 app.listen(3000, ()=> console.log('Express runing is port 3000'));
 
+//mengambil semua data employee
 app.get('/employess', (req, res)=>{
     mysqlConnection.query('SELECT * FROM employee', (err, rows, fields)=> {
         if (!err)
@@ -32,8 +39,9 @@ app.get('/employess', (req, res)=>{
         else
             console.log(err);
     })
-} )
+})
 
+//mengambil data perid
 app.get('/employess/:id', (req, res)=>{
     mysqlConnection.query('SELECT * FROM employee where EmpID = ?',[req.params.id], (err, rows, fields)=> {
         if (!err)
@@ -44,6 +52,7 @@ app.get('/employess/:id', (req, res)=>{
     })
 } )
 
+//meng hapus perid
 app.delete('/employess/:id', (req, res)=>{
     mysqlConnection.query('DELETE FROM employee where EmpID = ?',[req.params.id], (err, rows, fields)=> {
         if (!err)
@@ -54,14 +63,18 @@ app.delete('/employess/:id', (req, res)=>{
     })
 } )
 
+//menambahkan data 
 app.post('/employess', (req, res)=>{
     let emp = req.body;
     var sql = "INSERT INTO employee SET ?";
+
+    // mendeskripsikan parameter row table
     var bodyparam = {
         'name' : emp.name,
         'EmpCode' : emp.code,
         'Salary' : emp.salary
     };
+
     var sqlSelectId = 'SELECT * FROM employee where EmpID = ?';
 
     // res.send(emp.name);
@@ -79,7 +92,7 @@ app.post('/employess', (req, res)=>{
     })
 } )
 
-
+//mengupdate data perid
 app.put('/employess/:id', (req, res)=>{
     let emp = req.body;
     var sql = "UPDATE employee SET ? WHERE EmpID = ?";
